@@ -159,3 +159,47 @@ GET http://localhost:8080/api/orders
 - ✅ **Calidad en los commits**
 
 **¡Mucho éxito! 🚀**
+
+
+# Solución Implementada
+
+A continuación se resumen las decisiones de diseño y refactorización aplicadas en este repositorio para la resolución de esta prueba técnica.
+
+## 1. Refactorización **(Clean Code)**
+   
+   Se refactorizó la clase **OrderService** eliminando el anti-patrón God Method para cumplir con el Principio de Responsabilidad Única (SRP). El flujo principal se descompuso en métodos privados semánticos:
+   
+   - ***validateOrderRequest()***: Centraliza validaciones de entrada.
+
+   - ***processOrderItems()***: Maneja la iteración, búsqueda de productos y control de stock.
+
+   - ***calculateFinalTotal()***: Encapsula la lógica financiera y aplicación de descuentos.
+
+   El código ahora es legible de manera declarativa y facilita el mantenimiento aislado de cada responsabilidad.
+
+
+## 2. Lógica de Negocio (Descuento por Variedad)
+
+   Se implementó la regla de "más de 3 tipos de productos" utilizando Java Streams. La clave de la solución es el uso de **.map(Product::getId).distinct().count()** sobre los IDs de los productos. Esto garantiza la distinción correcta entre "cantidad de items" vs "tipos de productos", asegurando que **n** unidades del mismo producto no activen el descuento, pero 4 productos distintos sí.
+   
+   Entonces si un cliente compra 10 unidades del mismo producto, el sistema cuenta "1 tipo", pero si compra 4 productos distintos (aunque sea 1 unidad de cada uno), aplica el 10% de descuento.
+
+## 3. Testing
+
+   Se desarrollaron pruebas unitarias aisladas con JUnit 5 y Mockito en **OrderServiceTest.java**. Se cubrieron los escenarios críticos exigidos:
+
+   - ***Caso Base:*** Pedido con 3 tipos (Sin descuento).
+
+   - ***Caso Éxito:*** Pedido con 4 tipos (Con descuento del 10%).
+
+   - ***Caso Borde:*** Pedido con múltiples unidades de un solo tipo (Sin descuento).
+
+## 4. Patrones de Diseño Aplicados
+
+   - ***Service Layer:*** Encapsulamiento de la lógica de negocio.
+
+   - ***Separation of Concerns (SoC):*** División estricta entre validación, persistencia y cálculo.
+
+   - ***Repository Pattern:*** Abstracción del acceso a datos (JPA).
+
+**Nota: *Las respuestas teóricas sobre el escenario de concurrencia (Black Friday) y la pregunta de arquitectura (JPA FetchTypes) se encuentran detalladas en el archivo RESPUESTAS.md.***
